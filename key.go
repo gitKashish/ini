@@ -489,48 +489,6 @@ func (k *Key) RangeTime(defaultVal, min, max time.Time) time.Time {
 }
 
 // Strings returns list of string divided by given delimiter.
-func (k *Key) _Strings(delim string) []string {
-	str := k.String()
-	if len(str) == 0 {
-		return []string{}
-	}
-
-	runes := []rune(str)
-	vals := make([]string, 0, 2)
-	var buf bytes.Buffer
-	escape := false
-	idx := 0
-	for {
-		if escape {
-			escape = false
-			if runes[idx] != '\\' && !strings.HasPrefix(string(runes[idx:]), delim) {
-				buf.WriteRune('\\')
-			}
-			buf.WriteRune(runes[idx])
-		} else {
-			if runes[idx] == '\\' {
-				escape = true
-			} else if strings.HasPrefix(string(runes[idx:]), delim) {
-				idx += len(delim) - 1
-				vals = append(vals, strings.TrimSpace(buf.String()))
-				buf.Reset()
-			} else {
-				buf.WriteRune(runes[idx])
-			}
-		}
-		idx++
-		if idx == len(runes) {
-			break
-		}
-	}
-
-	if buf.Len() > 0 {
-		vals = append(vals, strings.TrimSpace(buf.String()))
-	}
-
-	return vals
-}
-
 func (k *Key) Strings(delim string) []string {
 	str := k.String()
 	if len(str) == 0 {
