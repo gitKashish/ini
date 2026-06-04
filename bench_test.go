@@ -114,3 +114,30 @@ func Benchmark_Key_SetValue_VisSection(b *testing.B) {
 		sec.Key("NAME").SetValue("10")
 	}
 }
+
+func Benchmark_Key_Strings_LargeArray(b *testing.B) {
+	c, err := Load("testdata/large_array.ini")
+	if err != nil {
+		b.Fatal(err)
+	}
+	// adjust section/key name to match your actual large_array.ini
+	key := c.Section("").Key("ARRAY")
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = key.Strings(",")
+	}
+}
+
+func Benchmark_Key_StringsOld_LargeArray(b *testing.B) {
+	c, err := Load("testdata/large_array.ini")
+	if err != nil {
+		b.Fatal(err)
+	}
+	key := c.Section("").Key("ARRAY")
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = key._Strings(",")
+	}
+}

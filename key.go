@@ -489,7 +489,7 @@ func (k *Key) RangeTime(defaultVal, min, max time.Time) time.Time {
 }
 
 // Strings returns list of string divided by given delimiter.
-func (k *Key) Strings(delim string) []string {
+func (k *Key) _Strings(delim string) []string {
 	str := k.String()
 	if len(str) == 0 {
 		return []string{}
@@ -520,6 +520,55 @@ func (k *Key) Strings(delim string) []string {
 		}
 		idx++
 		if idx == len(runes) {
+			break
+		}
+	}
+
+	if buf.Len() > 0 {
+		vals = append(vals, strings.TrimSpace(buf.String()))
+	}
+
+	return vals
+}
+
+func (k *Key) Strings(delim string) []string {
+	str := k.String()
+	if len(str) == 0 {
+		return []string{}
+	}
+
+	maxParts := strings.Count(str, delim) + 1
+	vals := make([]string, 0, maxParts)
+
+	var buf strings.Builder
+	buf.Grow(len(str))
+
+	i := 0
+	for {
+		if str[i] == '\\' {
+			i++
+			if i >= len(str) {
+				break
+			}
+
+			if str[i] != '\\' && !strings.HasPrefix(str[i:], delim) {
+				buf.WriteRune('\\')
+			}
+
+			r, size := utf8.DecodeRuneInString(str[i:])
+			i += size
+			buf.WriteRune(r)
+		} else if strings.HasPrefix(str[i:], delim) {
+			i += len(delim)
+			vals = append(vals, strings.TrimSpace(buf.String()))
+			buf.Reset()
+		} else {
+			r, size := utf8.DecodeRuneInString(str[i:])
+			i += size
+			buf.WriteRune(r)
+		}
+
+		if i >= len(str) {
 			break
 		}
 	}
