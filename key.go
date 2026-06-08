@@ -15,12 +15,12 @@
 package ini
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // Key represents a key under a section.
